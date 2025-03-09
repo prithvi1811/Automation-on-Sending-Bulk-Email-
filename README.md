@@ -1,86 +1,56 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-import os
-from docx import Document
-import openpyxl
+This Python code is designed to automate the process of sending personalized emails with an attachment to multiple recipients listed in an Excel file. Here's a detailed explanation of how it works:
+1. Imports:
 
-# Function to read the Word document
-def read_word_file(word_file_path):
-    doc = Document(word_file_path)
-    word_text = ""
-    for para in doc.paragraphs:
-        word_text += para.text + "\n"
-    return word_text
+    smtplib: Used for sending emails using the SMTP protocol.
+    email.mime.multipart, email.mime.text, email.mime.base: These are used to create a multipart email with different parts (text body and attachment).
+    encoders: Used for encoding the attachment to ensure it can be sent over email.
+    os: For file path and existence checking.
+    docx: A library for reading .docx Word files.
+    openpyxl: A library to read and write Excel files (for email addresses and names).
 
-# Function to read email addresses and names from Excel file
-def read_email_addresses_from_excel(excel_file_path):
-    wb = openpyxl.load_workbook(excel_file_path)
-    sheet = wb.active
-    email_list = []
+2. Functions:
 
-    # Assuming email addresses are in column A and names in column B starting from row 2
-    for row in range(2, sheet.max_row + 1):
-        email = sheet.cell(row=row, column=1).value
-        name = sheet.cell(row=row, column=2).value  # Read names from column B
-        if email and name:
-            email_list.append((email, name))  # Store both email and name as a tuple
+    read_word_file(word_file_path):
+        Takes the path to a Word document (.docx) and extracts all its paragraphs as a string.
+        It reads each paragraph and concatenates them to form the email body text.
 
-    return email_list
+    read_email_addresses_from_excel(excel_file_path):
+        Loads an Excel file using openpyxl, reads the email addresses and names from columns A (email) and B (name), starting from row 2.
+        Stores these as tuples (email, name) in a list and returns it.
 
-# Function to send an email
-def send_email(recipient, subject, body, attachment_path):
-    sender_email = "xyz@gmail.com"  
-    sender_password = "Password"  
-    smtp_server = "smtp.gmail.com"
-    smtp_port = 587
+    send_email(recipient, subject, body, attachment_path):
+        Sends an email to the specified recipient.
+        Sets up an email with the provided subject, body, and attachment (if the path exists).
+        The email is sent using Gmail's SMTP server (smtp.gmail.com), with authentication using your email and App password.
+        The email is sent with the attachment encoded in base64.
 
-    # Create a MIME object for the email
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = recipient
-    msg['Subject'] = subject
+3. Workflow:
 
-    # Add the email body
-    msg.attach(MIMEText(body, 'plain'))
+    Paths for files:
+        word_file_path: Path to the Word document that contains the email body.
+        attachment_path: Path to the PDF file (or any other attachment) you want to send with the email.
+        excel_file_path: Path to the Excel file containing email addresses and names.
 
-    # Attach the file if the path is valid
-    if attachment_path and os.path.exists(attachment_path):
-        with open(attachment_path, "rb") as attachment:
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(attachment.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f"attachment; filename={os.path.basename(attachment_path)}")
-            msg.attach(part)
+    Reading the email body:
+        The content of the email is read from the Word document using read_word_file(), and stored in email_body.
 
-    # Send the email using SMTP
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()  # Secure the connection
-        server.login(sender_email, sender_password)  # Login to the Gmail account
-        server.sendmail(sender_email, recipient, msg.as_string())  # Send the email
-        print(f"Email sent to {recipient}")
+    Reading email list:
+        The email addresses and names are read from the Excel file using read_email_addresses_from_excel().
 
-# Path to the Word document and attachment
-word_file_path = "/Users/prithvichauhan/Desktop/Email.docx"  # Change this path
-attachment_path = "/Users/prithvichauhan/Desktop/Prithvi_Chauhan.pdf"  # Change this path
+    Email Sending:
+        For each recipient in the email list, a personalized email is sent by replacing the placeholder [Name] in the email body with the recipient’s actual name.
+        The subject is hardcoded as "Job Opportunity Inquiry".
 
-# Read the body from the Word document
-email_body = read_word_file(word_file_path)
+4. Execution:
 
-# Excel file containing email addresses and names
-excel_file_path = "/Users/prithvichauhan/Desktop/Book1.xlsx"  # Change this path to your Excel file
+    The send_email() function is called inside a loop for each recipient in the list, sending a personalized email with the attachment.
 
-# Read email addresses and names from the Excel file
-email_list = read_email_addresses_from_excel(excel_file_path)
+Key Steps:
 
-# Email details
-subject = "Job Opportunity Inquiry"
+    Personalized emails: The [Name] placeholder in the email body is replaced with each recipient's name to make the email personal.
+    Attachment: If the provided file path for the attachment is valid, the file is sent with each email.
 
-# Loop through the email list and send personalized emails
-for recipient, name in email_list:
-    personalized_body = email_body.replace("[Name]", name)  # Replace [Name] with recipient's name
-    send_email(recipient, subject, personalized_body, attachment_path)
+Important Notes:
 
-print("Emails sent successfully!")
+    Sender’s credentials: The sender's Gmail credentials (email and app password) are hardcoded, which might need to be updated for security reasons.
+    Excel format: It assumes the Excel file has email addresses in column A and names in column B starting from row 2.
