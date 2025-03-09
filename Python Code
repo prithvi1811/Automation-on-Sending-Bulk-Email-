@@ -32,8 +32,8 @@ def read_email_addresses_from_excel(excel_file_path):
 
 # Function to send an email
 def send_email(recipient, subject, body, attachment_path):
-    sender_email = "Prithvi.shaktichauhan@gmail.com"  # Replace with your email
-    sender_password = "nxew kohe rvoo ymyu"  # Replace with your App Password
+    sender_email = "xyz@gmail.com"  
+    sender_password = "Passowrd"  
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
 
@@ -63,8 +63,8 @@ def send_email(recipient, subject, body, attachment_path):
         print(f"Email sent to {recipient}")
 
 # Path to the Word document and attachment
-word_file_path = "/Users/prithvichauhan/Desktop/Email.docx"  # Change this path
-attachment_path = "/Users/prithvichauhan/Desktop/Prithvi_Chauhan.pdf"  # Change this path
+word_file_path = ""  # Change this path
+attachment_path = ""  # Change this path
 
 # Read the body from the Word document
 email_body = read_word_file(word_file_path)
@@ -76,7 +76,7 @@ excel_file_path = "/Users/prithvichauhan/Desktop/Book1.xlsx"  # Change this path
 email_list = read_email_addresses_from_excel(excel_file_path)
 
 # Email details
-subject = "Job Opportunity Inquiry"
+subject = "Subject "
 
 # Loop through the email list and send personalized emails
 for recipient, name in email_list:
